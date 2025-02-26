@@ -11,4 +11,4 @@ def normalize_name(name):
     Note that there is also packaging_utils.canonicalize_name
     which turns "foo.bar" into "foo-bar", so it is different.
     """
-    return re.sub(r"[-_.]+", "-", name).lower().replace('-', '_')
+    return re.sub(r"[-_.]+", "-", name).lower()
