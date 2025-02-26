@@ -301,3 +301,43 @@ def patch_pkg_resources_requirement_contains():
 
 
 patch_pkg_resources_requirement_contains()
+
+
+def patch_pkg_resources_working_set_find():
+    """Patch pkg_resources.WorkingSet.find
+
+    The find on WorkingSet should find a distribution by requirement.
+    The original find does not fully take package name normalization into account.
+    """
+    try:
+        from pkg_resources import WorkingSet, VersionConflict
+        from zc.buildout.utils import normalize_name
+    except ImportError:
+        return
+
+    def patched_find(self, req):
+        dist = None
+
+        for req_key in (req.key, normalize_name(req.key)):
+            dist = self.by_key.get(req_key)
+
+            if dist is None:
+                canonical_key = self.normalized_to_canonical_keys.get(req_key)
+
+                if canonical_key is not None:
+                    req.key = canonical_key
+                    dist = self.by_key.get(canonical_key)
+
+            if dist is not None:
+                break
+
+        if dist is not None and dist not in req:
+            # XXX add more info
+            raise VersionConflict(dist, req)
+        return dist
+
+    WorkingSet.find = patched_find
+
+
+patch_pkg_resources_working_set_find()
+

@@ -705,6 +705,7 @@ class Installer(object):
         return requirement
 
     def install(self, specs, working_set=None):
+
         logger.debug('Installing %s.', repr(specs)[1:-1])
         self._requirements_and_constraints.append(
             "Base installation request: %s" % repr(specs)[1:-1])
@@ -719,6 +720,7 @@ class Installer(object):
             for requirement in requirements
             if not requirement.marker or requirement.marker.evaluate()
         ]
+
         if working_set is None:
             ws = pkg_resources.WorkingSet([])
         else:
@@ -1205,21 +1207,10 @@ def scripts(reqs, working_set, executable, dest=None,
     distutils_scripts = []
     for req in reqs:
         if isinstance(req, str):
-            orig_req = req
             req = pkg_resources.Requirement.parse(req)
             if req.marker and not req.marker.evaluate():
                 continue
             dist = working_set.find(req)
-
-            if not dist:
-                req = pkg_resources.Requirement.parse(normalize_name(orig_req))
-                if req.marker and not req.marker.evaluate():
-                    continue
-                dist = working_set.find(req)
-
-            if not dist:
-                raise zc.buildout.UserError("Did not find distribution for %s" % orig_req)
-
             # regular console_scripts entry points
             for name in pkg_resources.get_entry_map(dist, 'console_scripts'):
                 entry_point = dist.get_entry_info('console_scripts', name)
