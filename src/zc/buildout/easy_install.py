@@ -1692,6 +1692,39 @@ class IncompatibleConstraintError(zc.buildout.UserError):
 IncompatibleVersionError = IncompatibleConstraintError # Backward compatibility
 
 
+def calc_egg_name(distro):
+    """Calc the name of the resulting egg.
+
+    Under unknown circumstances pip install creates dist dirs
+    where '.' (dots) are normalized to '_' and sometime it preserves
+    the '.'. In case of old school namespace packages the '.' in
+    the resulting egg_name is lost and will cause trouble on installation
+    or updating.
+
+    This function tries to create an egg_name where the dots are
+    preserved."""
+
+    pkg_name = None
+    if distro.has_metadata('METADATA'):
+        meta = [line for line in distro.get_metadata_lines('METADATA')
+                if line.lower().startswith('name:')]
+        if len(meta):
+            (_, pkg_name) = meta[0].split(":")
+            pkg_name = pkg_name.strip()
+
+    # copy-/paste from pkg_resources
+    name = pkg_name if pkg_name else distro.project_name
+    filename = "%s-%s-py%s" % (
+        pkg_resources.to_filename(name),
+        pkg_resources.to_filename(distro.version),
+        distro.py_version or pkg_resources.PY_MAJOR
+    )
+
+    if distro.platform:
+        filename += '-' + distro.platform
+    return filename
+
+
 def call_pip_install(spec, dest):
     """
     Call `pip install` from a subprocess to install a
@@ -1795,34 +1828,8 @@ def make_egg_after_pip_install(dest, distinfo_dir):
 
     distro = list(pkg_resources.find_distributions(dest))[0]
 
-    # We have some namespace packages with pyproject.toml
-    # files. pip install creates filenames with replacing '.' (dots)
-    # by '_' (underscore). This will break the whole machinery.
-    # We try here to preserve the '.' in the resulting egg name.
-    pkg_name = None
-    if distro.has_metadata('METADATA'):
-        meta = [line for line in distro.get_metadata_lines('METADATA')
-                if line.lower().startswith('name:')]
-        if len(meta):
-            (_, pkg_name) = meta[0].split(":")
-            pkg_name = pkg_name.strip()
-
-    # copy-/paste from pkg_resources
-    def _egg_name(distro, _pkg_name):
-        """Return what this distribution's standard .egg filename should be"""
-        name = _pkg_name if _pkg_name else distro.project_name
-        filename = "%s-%s-py%s" % (
-            pkg_resources.to_filename(name),
-            pkg_resources.to_filename(distro.version),
-            distro.py_version or pkg_resources.PY_MAJOR 
-        )
-
-        if distro.platform:
-            filename += '-' + self.platform
-        return filename
-
     base = "{}-{}".format(
-        _egg_name(distro, pkg_name), pkg_resources.get_supported_platform()
+        calc_egg_name(distro), pkg_resources.get_supported_platform()
     )
     egg_name = base + '.egg'
     new_distinfo_dir = base + '.dist-info'
