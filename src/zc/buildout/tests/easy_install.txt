@@ -109,6 +109,7 @@ We have a link server that has a number of eggs:
     <a href="extdemo-1.4.zip">extdemo-1.4.zip</a><br>
     <a href="index/">index/</a><br>
     <a href="mixedcase-0.5.zip">mixedcase-0.5.zip</a><br>
+    <a href="namespace_demo-0.1.zip">namespace_demo-0.1.zip</a><br>
     <a href="other-1.0-py2.4.egg">other-1.0-py2.4.egg</a><br>
     </body></html>
 
@@ -1264,6 +1265,7 @@ Let's update our link server with a new version of extdemo:
     <a href="extdemo-1.5.zip">extdemo-1.5.zip</a><br>
     <a href="index/">index/</a><br>
     <a href="mixedcase-0.5.zip">mixedcase-0.5.zip</a><br>
+    <a href="namespace_demo-0.1.zip">namespace_demo-0.1.zip</a><br>
     <a href="other-1.0-py2.4.egg">other-1.0-py2.4.egg</a><br>
     </body></html>
 
@@ -1305,6 +1307,22 @@ get an updated egg:
     d  demoneeded-1.1-py2.4.egg
     d  extdemo-1.4-py2.4-unix-i686.egg
     d  extdemo-1.5-py2.4-unix-i686.egg
+
+Check if the installed namespace package is created with a '.' (dot) in
+its name.
+
+    >>> import os
+    >>> for name in os.listdir(dest):
+    ...     remove(dest, name)
+
+    >>> zc.buildout.easy_install.build(
+    ...   'namespace.demo', dest,
+    ...   {'include_dirs': os.path.join(sample_buildout, 'include')},
+    ...   links=[link_server], index=link_server+'index/')
+    ['/sample-install/namespace.demo-0.1-py2.4-unix-i686.egg']
+
+    >>> ls(dest)
+    d  namespace.demo-0.1-py2.4-unix-i686.egg
 
 The versions option also influences the versions used.  For example,
 if we specify a version for extdemo, then that will be used, even

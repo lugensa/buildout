@@ -112,6 +112,37 @@ def create_sample_eggs(test, executable=sys.executable):
                 os.rename(file, file.lower())
         os.chdir(curdir)
 
+        # create a namespace package `namespace.demo`
+        # need to check if the '.' is preserved if egg is installed
+        namespace_pkg_dir = os.path.join(tmp, 'namespaceproject')
+        src_dir = os.path.join(namespace_pkg_dir, 'src')
+        namespace_1_dir = os.path.join(src_dir, 'namespace')
+        namespace_2_dir = os.path.join(namespace_1_dir, 'demo')
+        os.mkdir(namespace_pkg_dir)
+        os.mkdir(src_dir)
+        os.mkdir(namespace_1_dir)
+        os.mkdir(namespace_2_dir)
+        write(
+            namespace_1_dir,
+            '__init__.py',
+            '__import__("pkg_resources").declare_namespace(__name__)'
+        )
+        write(namespace_2_dir, '__init__.py', '')
+
+        write(namespace_2_dir, 'app.py', 'def f():\n  pass')
+        write(namespace_pkg_dir, 'setup.py',
+            "from setuptools import setup, find_packages\n"
+            "setup(name='namespace.demo',"
+            " author='bob', url='bob', author_email='bob',"
+            " install_requires = 'demoneeded', "
+            " namespace_packages=['namespace'],"
+            " package_dir={'': 'src'},"
+            " packages=find_packages('src'),"
+            " zip_safe=True, version='0.1')\n"
+            )
+        zc.buildout.testing.sdist(namespace_pkg_dir, dest)
+        shutil.rmtree(namespace_pkg_dir)
+
         write(tmp, 'eggrecipebigdemo.py', 'import eggrecipedemo')
         write(
             tmp, 'setup.py',
