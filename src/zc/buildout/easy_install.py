@@ -711,7 +711,6 @@ class Installer(object):
             "Base installation request: %s" % repr(specs)[1:-1])
 
         for_buildout_run = bool(working_set)
-
         requirements = [pkg_resources.Requirement.parse(spec)
                         for spec in specs]
 
@@ -1794,10 +1793,36 @@ def make_egg_after_pip_install(dest, distinfo_dir):
                 if os.path.exists(bin_dir):
                     shutil.rmtree(bin_dir)
 
-    # Make properly named new egg dir
     distro = list(pkg_resources.find_distributions(dest))[0]
+
+    # We have some namespace packages with pyproject.toml
+    # files. pip install creates filenames with replacing '.' (dots)
+    # by '_' (underscore). This will break the whole machinery.
+    # We try here to preserve the '.' in the resulting egg name.
+    pkg_name = None
+    if distro.has_metadata('METADATA'):
+        meta = [line for line in distro.get_metadata_lines('METADATA')
+                if line.lower().startswith('name:')]
+        if len(meta):
+            (_, pkg_name) = meta[0].split(":")
+            pkg_name = pkg_name.strip()
+
+    # copy-/paste from pkg_resources
+    def _egg_name(distro, _pkg_name):
+        """Return what this distribution's standard .egg filename should be"""
+        name = _pkg_name if _pkg_name else distro.project_name
+        filename = "%s-%s-py%s" % (
+            pkg_resources.to_filename(name),
+            pkg_resources.to_filename(distro.version),
+            distro.py_version or pkg_resources.PY_MAJOR 
+        )
+
+        if distro.platform:
+            filename += '-' + self.platform
+        return filename
+
     base = "{}-{}".format(
-        distro.egg_name(), pkg_resources.get_supported_platform()
+        _egg_name(distro, pkg_name), pkg_resources.get_supported_platform()
     )
     egg_name = base + '.egg'
     new_distinfo_dir = base + '.dist-info'

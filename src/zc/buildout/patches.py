@@ -339,5 +339,5 @@ def patch_pkg_resources_working_set_find():
     WorkingSet.find = patched_find
 
 
-patch_pkg_resources_working_set_find()
+# patch_pkg_resources_working_set_find()
 
