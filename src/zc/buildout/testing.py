@@ -620,21 +620,53 @@ ignore_not_upgrading = (
 # I keep finding new lines like that, so let's ignore all.
 ignore_root_logger = (re.compile(r'root:.*'), '')
 # Now replace a multiline warning about that you should switch to native namespaces.
-ignore_native_namespace_warning_1 = (re.compile(r'!!'), '')
-ignore_native_namespace_warning_2 = (re.compile(r'\*' * 80), '')
+ignore_native_namespace_warning_1 = (re.compile(r'!!\n'), '')
+ignore_native_namespace_warning_2 = (re.compile(r'\*' * 80 + '\n'), '')
 ignore_native_namespace_warning_3 = (re.compile(
-    r'Please replace its usage with implicit namespaces \(PEP 420\).'),
+    r'Please replace its usage with implicit namespaces \(PEP 420\).\n'),
     ''
 )
 ignore_native_namespace_warning_4 = (re.compile(
-    r'See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages for details.'),
+    r'See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages for details.\n'),
     ''
 )
 ignore_native_namespace_warning_5 = (re.compile(
-    r'ep.load\(\)\(self, ep.name, value\)'),
+    r'ep.load\(\)\(self, ep.name, value\)\n'),
     ''
 )
 
+ignore_avoid_setup_py_1 = (re.compile(
+    r'Please avoid running ``setup.py`` directly.\n'),
+    ''
+)
+ignore_avoid_setup_py_2 = (re.compile(
+    r'Please avoid running ``setup.py`` and ``easy_install``.\n'),
+    ''
+)
+ignore_avoid_setup_py_3 = (re.compile(
+    r'Instead, use pypa/build, pypa/installer or other\n'),
+    ''
+)
+ignore_avoid_setup_py_4 = (re.compile(
+    r'standards-based tools.\n'),
+    ''
+)
+ignore_avoid_setup_py_5 = (re.compile(
+    r"See https://github.com/pypa/setuptools/issues/917 for details.\n"),
+    ''
+)
+ignore_avoid_setup_py_6 = (re.compile(
+    r'See https://blog.ganssle.io/articles/2021/10/setup-py-deprecated.html for details.\n'),
+    ''
+)
+ignore_avoid_setup_py_7 = (re.compile(
+    r'easy_install.initialize_options\(self\)\n'),
+    ''
+)
+ignore_avoid_setup_py_8 = (re.compile(
+    r'self.initialize_options\(\)\n'),
+    ''
+)
 
 def run_buildout(command):
     # Make sure we don't get .buildout

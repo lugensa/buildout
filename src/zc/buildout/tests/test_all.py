@@ -3403,6 +3403,23 @@ def bootstrapSetup(test):
     test.globs['bootstrap_py'] = bootstrap_py
 
 
+ignore_namespace_setup_py_warnings = [
+    zc.buildout.testing.ignore_native_namespace_warning_1,
+    zc.buildout.testing.ignore_native_namespace_warning_2,
+    zc.buildout.testing.ignore_native_namespace_warning_3,
+    zc.buildout.testing.ignore_native_namespace_warning_4,
+    zc.buildout.testing.ignore_native_namespace_warning_5,
+    zc.buildout.testing.ignore_avoid_setup_py_1,
+    zc.buildout.testing.ignore_avoid_setup_py_2,
+    zc.buildout.testing.ignore_avoid_setup_py_3,
+    zc.buildout.testing.ignore_avoid_setup_py_4,
+    zc.buildout.testing.ignore_avoid_setup_py_5,
+    zc.buildout.testing.ignore_avoid_setup_py_6,
+    zc.buildout.testing.ignore_avoid_setup_py_7,
+    zc.buildout.testing.ignore_avoid_setup_py_8,
+]
+
+
 def test_suite():
 
     test_suite = [
@@ -3424,6 +3441,7 @@ def test_suite():
                     zc.buildout.testing.pkg_resources_deprecated,
                     zc.buildout.testing.warnings_warn,
                     zc.buildout.testing.ignore_root_logger,
+                    *ignore_namespace_setup_py_warnings,
                     # (re.compile(r"Installing 'zc.buildout >=\S+"), ''),
                     (re.compile(r'__buildout_signature__ = recipes-\S+'),
                      '__buildout_signature__ = recipes-SSSSSSSSSSS'),
@@ -3594,11 +3612,6 @@ def test_suite():
                 zc.buildout.testing.pkg_resources_deprecated,
                 zc.buildout.testing.warnings_warn,
                 zc.buildout.testing.ignore_root_logger,
-                zc.buildout.testing.ignore_native_namespace_warning_1,
-                zc.buildout.testing.ignore_native_namespace_warning_2,
-                zc.buildout.testing.ignore_native_namespace_warning_3,
-                zc.buildout.testing.ignore_native_namespace_warning_4,
-                zc.buildout.testing.ignore_native_namespace_warning_5,
                 normalize_bang,
                 (re.compile(r'^(\w+\.)*(Missing\w+: )'), '\2'),
                 (re.compile(r"buildout: Running \S*setup.py"),
